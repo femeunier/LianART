@@ -1,0 +1,23 @@
+% Default function for leaf area density distribution.
+function RelativeBlockArea = fun_areaBranch3(NBlock, ...
+                                              BlocksParameters,...
+                                              varargin)
+    %-
+    
+    % Flag: true if block is the last in its branch, false otherwise.
+    branch_order = BlocksParameters.branch_order;
+    
+    
+    
+    if any(is_last)
+        % Distribute evenly to all branch tip blocks.
+        RelativeBlockArea = zeros(NBlock,1);
+        RelativeBlockArea(is_last) = 1/nnz(is_last);
+    else
+        % Fallback, if none of the blocks are marked to be last. Distribute
+        % evenly to all blocks.
+        RelativeBlockArea = ones(NBlock,1)/NBlock;
+    end
+    
+
+end
