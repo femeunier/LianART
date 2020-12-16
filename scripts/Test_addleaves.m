@@ -5,7 +5,7 @@ addpath(genpath('./qsm-blocks-matlab/'));
 addpath(genpath('./functions/'));
 
 % Import data from text file.
-filename = '/home/femeunier/Dropbox/LianART/data/cyl_data_GUY01_000.txt_0.5_0.55_5_0.025_0.075_3_4_1_t19.txt';
+filename = '/home/femeunier/Documents/MATLAB/LianART/data/cyl_data_GUY01_000.txt_0.5_0.55_5_0.025_0.075_3_4_1_t19.txt';
 rawdata = readQSM(filename) ; 
 QSM = ConvertQSM(rawdata);
 
@@ -34,7 +34,7 @@ tris = [
 
 % Genereate 50 m2 of leaf candidates,
 % stop if 10 m2 of leaf area is accepted.
-LeafArea = [100,500];
+LeafArea = [200,500];
 
 % Initialize the leaf model with the basis geometry.
 Leaves = LeafModelTriangle(vertices, tris, {[1 2 3 4]});
@@ -45,7 +45,8 @@ Leaves = LeafModelTriangle(vertices, tris, {[1 2 3 4]});
     Leaves,...
     LeafArea,...
     'Seed',1,...
-    'AreaFunction',@fun_areaBranch3,...
+    'AreaFunction',@fun_areaBranchN,...
+    'AreaFunctionParameters',{3},...
     'SizeFunctionParameters', {[0.25 0.30]},...
     'Verbose',true ...
 );
