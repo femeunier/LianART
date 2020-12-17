@@ -1,9 +1,10 @@
-function QSM = mergeQSMs(QSMs)
+function [QSM,PlandID] = mergeQSMs(QSMs)
 
 N = 0;
 Nbranch = 0;
 
-Sta = []; Axe = []; Len = [] ; Rad = [] ; Par = [] ; BI = [];
+Sta = []; Axe = []; Len = [] ; Rad = [] ; Par = [] ; BI = []; 
+PlandID = [];
 
 for iQSM = 1:length(QSMs)
     Sta = [Sta;QSMs{iQSM}.cylinder_start_point];
@@ -17,6 +18,7 @@ for iQSM = 1:length(QSMs)
     
     BI =  [BI;QSMs{iQSM}.cylinder_branch_index + Nbranch];
     
+    PlandID = [PlandID;[(N + (1:(QSMs{iQSM}.block_count)))',iQSM*ones(QSMs{iQSM}.block_count,1)]];
     N = N + QSMs{iQSM}.block_count;
     Nbranch = Nbranch + QSMs{iQSM}.branch_count;
 end

@@ -8,7 +8,8 @@ addpath(genpath('./functions/'));
 filenames = {'/home/femeunier/Documents/MATLAB/LianART/data/cyl_data_GUY01_000.txt_0.5_0.55_5_0.025_0.075_3_4_1_t19.txt',
      '/home/femeunier/Documents/MATLAB/LianART/data/cyl_data_GUY01_000.txt_0.5_0.55_5_0.025_0.075_3_4_1_t19.txt'};
 QSMs = {};
-tra = [0,0,0;50,50,0];
+tra = [0,0,0;
+    1,1,0];
 
 for file = 1:length(filenames)
     rawdata = readQSM(filenames{file}) ; 
@@ -16,7 +17,7 @@ for file = 1:length(filenames)
     QSMs{file} = QSM.translate(tra(file,:));
 end
 
-QSM_merged = mergeQSMs(QSMs);
+[QSM_merged,PlandID] = mergeQSMs(QSMs);
 
 % QSM_merged.plot_model( ...
 %     'Closed', ...
@@ -42,52 +43,81 @@ tris = [
 LeafArea = [200,500];
 
 % Initialize the leaf model with the basis geometry.
-Leaves = LeafModelTriangle(vertices, tris, {[1 2 3 4]});
+EmptyLeaves = LeafModelTriangle(vertices, tris, {[1 2 3 4]});
+
+EmptyLeaves_plant = {};
+Leaves_plant = {};
+for file = 1:length(filenames)
+    EmptyLeaves_plant{file} = LeafModelTriangle(vertices, tris, {[1 2 3 4]});
+    Leaves_plant{file} = EmptyLeaves_plant{file} ; 
+end
+
 
 % Generate leaves.
 [Leaves, NAccepted] = qsm_fanni( ...
     QSM_merged,...
-    Leaves,...
+    EmptyLeaves,...
     LeafArea,...
     'Seed',1,...
     'AreaFunction',@fun_areaBranchN,...
     'AreaFunctionParameters',{3},...
     'SizeFunctionParameters', {[0.25 0.30]},...
-    'Verbose',true ...
-);
+    'Verbose',true);
+
+for ileaf = 1:Leaves.leaf_count
+    Plant_parent = PlandID(Leaves.leaf_parent(ileaf),2) ; 
+    
+    origin = Leaves.leaf_start_point(ileaf,:);
+    dir = Leaves.leaf_direction(ileaf,:);
+    normal = Leaves.leaf_normal(ileaf,:);
+    scale = Leaves.leaf_scale(ileaf,:);
+    LeafTris = Leaves.triangles(origin, dir, normal, scale);
+    
+    Leaves_plant{Plant_parent}.add_leaf(origin,...
+        dir,...
+        normal,...
+        scale,...
+        Leaves.leaf_parent(ileaf),...
+        Leaves.twig_start_point(ileaf,:),...
+        LeafTris);
+end
 
 
 % Plot QSM.
-% hQSM =  QSM_merged.plot_model( 'Closed', ...
-%     'FaceCount',[10 20]);
-% % Set bark color.
-% set(hQSM,'FaceColor',[150,100,50]./255,'EdgeColor',[0 0 0]);
-% 
-% hold on;
+hQSM =  QSM_merged.plot_model( 'Closed', ...
+    'FaceCount',[10 20]);
+% Set bark color.
+set(hQSM,'FaceColor',[150,100,50]./255,'EdgeColor',[0 0 0]);
+
+hold on;
 
 % Plot leaves.
-hLeaf = Leaves.plot_leaves();
-% Set leaf color.
-set(hLeaf,'FaceColor',[120,150,80]./255);
+Colors = cool(length(filenames));
+for file = 1:length(filenames)
+    hLeaf = Leaves_plant{file}.plot_leaves();
+    % Set leaf color
+    set(hLeaf,'FaceColor',Colors(file,:));
+end
 
 hold off;
 axis equal;
 grid on;
 zlim([0 35])
-
  
 % % Export
 % 
 % % Use ngons when exporting leaves.
-% fUseNgon = true;
+fUseNgon = true;
 % 
 % % Export in OBJ-format with individual leaf vertices and faces.
-% Leaves.export_geometry( ...
-%     'OBJ', ...
-%     fUseNgon, ...
-%     './outputs/test_leaves_export.obj', ...
-%     4 ...
-% );
+for file = 1:length(filenames)
+    Leaves_plant{file}.export_geometry( ...
+        'OBJ', ...
+        fUseNgon, ...
+        ['./outputs/test_leaves_export' num2str(file) '.obj'], ...
+        4 ...
+    );
+end
 % 
 % % Export QSM parameters to a text file.
 % QSM.export( ...

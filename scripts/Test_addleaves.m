@@ -7,7 +7,7 @@ addpath(genpath('./functions/'));
 % Import data from text file.
 filename = '/home/femeunier/Documents/MATLAB/LianART/data/cyl_data_GUY01_000.txt_0.5_0.55_5_0.025_0.075_3_4_1_t19.txt';
 rawdata = readQSM(filename) ; 
-QSM = ConvertQSM(rawdata);
+QSM = ConvertQSM(rawdata) ;
 
 % QSM.plot_model( ...
 %     'Closed', ...
