@@ -1,0 +1,29 @@
+function QSM = mergeQSMs(QSMs)
+
+N = 0;
+Nbranch = 0;
+
+Sta = []; Axe = []; Len = [] ; Rad = [] ; Par = [] ; BI = [];
+
+for iQSM = 1:length(QSMs)
+    Sta = [Sta;QSMs{iQSM}.cylinder_start_point];
+    Axe = [Axe;QSMs{iQSM}.cylinder_axis];
+    Len = [Len;QSMs{iQSM}.cylinder_length];
+    Rad = [Rad;QSMs{iQSM}.cylinder_radius];
+    
+    New_parent = QSMs{iQSM}.cylinder_parent + N;
+    New_parent(QSMs{iQSM}.cylinder_parent == 0) = 0;
+    Par = [Par;New_parent];
+    
+    BI =  [BI;QSMs{iQSM}.cylinder_branch_index + Nbranch];
+    
+    N = N + QSMs{iQSM}.block_count;
+    Nbranch = Nbranch + QSMs{iQSM}.branch_count;
+end
+
+
+Added = [];
+
+QSM = QSMBCylindrical(Sta,Axe,Len,Rad,Par,BI,Added);
+
+end

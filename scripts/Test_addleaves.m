@@ -67,7 +67,7 @@ set(hLeaf,'FaceColor',[120,150,80]./255);
 hold off;
 axis equal;
 grid on;
-zlim([0 35])
+zlim([12 20])
 
 
 % Export
@@ -92,5 +92,3 @@ QSM.export( ...
 );
 
 % zlim([12,20])
-
-    8.5780   16.7567   28.3825
